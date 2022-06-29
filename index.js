@@ -12,6 +12,38 @@ const params = {
 }
 let conn = mysql.createConnection(params);
 
+
+
+/* Pregunta a) */
+// get--> obtención de todas las mascotas existentes o de uno específico usando el id
+app.get("/mascotas/get/:id?", (req, res) => {
+    let id = req.query.id;
+
+    let sql_a = "SELECT * FROM sandylance.mascota where idmascota = ?";
+
+    if(id===undefined){
+        let sql = 'SELECT * FROM sandylance.mascota';
+        conn.query(sql,function(err,result){
+            if (err) {
+                res.json({err: "ocurrió un error al obtener información lista de mascotas" });
+                console.error(err);
+            } else {
+                res.json(result);
+            }
+        });
+    }else{
+        let parametros = [id];
+        conn.query(sql_a,parametros,function(err,result){
+            if (err) {
+                res.json({err: "ocurrió un error al obtener información sobre la mascota con id="+id });
+                console.error(err);
+            } else {
+                res.json(result);
+            }
+        });
+    }
+});
+
 /* Pregunta b) */
 // Content-Type: application/json
 // Response -> mascota creada
