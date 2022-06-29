@@ -55,16 +55,29 @@ app.post('/mascota/create', bodyParser.json(), (req, res) => {
 // get--> obtener una cuenta expecifico
 app.get('/cuenta/get/:id',function(req,res){
     let cuentaid=req.params.id;
-    let sql = 'SELECT * FROM cuenta WHERE idcuenta=?';
-    let params = [cuentaid];
-    conn.query(sql,params,function(err,results){
-        if (err) {
-            console.log('No se pudo obtener la cuenta');
-            throw err;
-        } else {
-            res.json(results);
-        }
-    });
+    if(cuentaid=''){
+        let sql = 'SELECT * FROM cuenta';
+        conn.query(sql,params,function(err,results){
+            if (err) {
+                console.log('No se pudo obtener las cuentas');
+                throw err;
+            } else {
+                res.json(results);
+            }
+        });
+    }else{
+        let sql1 = 'SELECT * FROM cuenta WHERE idcuenta=?';
+        let params = [cuentaid];
+        conn.query(sql1,params,function(err,results){
+            if (err) {
+                console.log('No se pudo obtener la cuenta');
+                throw err;
+            } else {
+                res.json(results);
+            }
+        });
+    }
+
 });
 
 
