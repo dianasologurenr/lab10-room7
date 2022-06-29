@@ -1,5 +1,8 @@
 'use strict'
 
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
 const mysql = require('mysql2')
 const params = {
     host: 'localhost',
@@ -8,11 +11,6 @@ const params = {
     database: 'sandylance'
 }
 let conn = mysql.createConnection(params);
-
-const express = require('express');
-const app = express();
-const bodyParser = require('body-parser');
-
 
 /* Pregunta b) */
 // Content-Type: application/json
@@ -32,16 +30,25 @@ app.post('/mascota/create', bodyParser.json(), (req, res) => {
     }
 
     conn.query(sql, params, (err, result) => {
-        if (err) throw err;
-        // Devuelve la mascota creada
-        conn.query('select * from mascota where idmascota = ?', [result.insertId], (e, r) => {
-            if (e) throw e;
-            res.json(r);
-        })
+        if (err) {
+            console.log('Error en los datos de la mascota a registrar');
+            throw err;
+        } else {
+            // Devuelve la mascota creada
+            conn.query('select * from mascota where idmascota = ?',
+                [result.insertId], (e, r) => {
+                    if (e) {
+                        console.log('No se pudo obtener la mascota creada');
+                        throw e;
+                    } else {
+                        res.json(r);
+                    }
+                })
+        }
     })
 })
 
-/* Port */
+/* Server */
 app.listen(3000, () => {
     console.log("Servidor escuchando en puerto: 3000")
 })
