@@ -12,42 +12,52 @@ const params = {
 }
 let conn = mysql.createConnection(params);
 
-
-
 /* Pregunta a) */
 // get--> obtención de todas las mascotas existentes o de uno específico usando el id
-app.get("/mascotas/get/:id?", (req, res) => {
-    let id = req.query.id;
-
+app.get("/mascota/get/:id?", (req, res) => {
+    let id = req.params.id;
     let sql_a = "SELECT * FROM sandylance.mascota where idmascota = ?";
 
-    if(id===undefined){
+    if (id === undefined) {
         let sql = 'SELECT * FROM sandylance.mascota';
-        conn.query(sql,function(err,result){
+        conn.query(sql, function (err, result) {
             if (err) {
-                res.json({err: "ocurrió un error al obtener información lista de mascotas" });
+                res.json({msg: "ocurrió un error al obtener información lista de mascotas"});
                 console.error(err);
             } else {
                 res.json(result);
             }
         });
-    }else{
+    } else {
         let parametros = [id];
-        conn.query(sql_a,parametros,function(err,result){
+        conn.query(sql_a, parametros, function (err, result) {
             if (err) {
-                res.json({err: "ocurrió un error al obtener información sobre la mascota con id="+id });
+                res.json({msg: "ocurrió un error al obtener información sobre la mascota con id=" + id});
                 console.error(err);
             } else {
-                res.json(result);
+                if (result.length !== 0) res.json(result);
+                else res.json({msg: 'No se encontraron resultados'})
             }
         });
     }
 });
 
 /* Pregunta b) */
-// Content-Type: application/json
-// Response -> mascota creada
-
+/**
+ * Content-Type: application/json
+ * Ejemplo de Request:
+ {
+         "nombre": "Crash",
+         "anho": "8",
+         "historia": "obesidad",
+         "observaciones": "ninguna",
+         "sexo": "masculino",
+         "raza_especie_idraza": 3,
+         "raza_otros": "ninguno",
+         "cuenta_idcuenta": 3
+    }
+ * Response -> mascota creada
+ */
 app.post('/mascota/create', bodyParser.json(), (req, res) => {
     let sql = 'insert into mascota set ?';
     let params = {
@@ -63,15 +73,15 @@ app.post('/mascota/create', bodyParser.json(), (req, res) => {
 
     conn.query(sql, params, (err, result) => {
         if (err) {
-            console.log('Error en los datos de la mascota a registrar');
-            throw err;
+            res.json({msg: 'Error en los datos de la mascota a registrar'});
+            console.error(err);
         } else {
             // Devuelve la mascota creada
             conn.query('select * from mascota where idmascota = ?',
                 [result.insertId], (e, r) => {
                     if (e) {
-                        console.log('No se pudo obtener la mascota creada');
-                        throw e;
+                        res.json({msg: 'No se pudo obtener la mascota creada'});
+                        console.error(err);
                     } else {
                         res.json(r);
                     }
@@ -82,8 +92,17 @@ app.post('/mascota/create', bodyParser.json(), (req, res) => {
 
 
 /* Pregunta c) */
-// Content-Type: application/json
-// Response -> servicio creado
+/**
+ * Content-Type: application/json
+ * Ejemplo de Request: (idmascota por variable de ruta)
+ {
+        "cuenta_idcuenta": 3,
+        "duracion": 30,
+        "entrega": "Domicilio",
+        "responsable_idresponsable": 2
+    }
+ * Response -> mascota creada
+ */
 
 app.post("/servicio/create/:id", bodyParser.json(), (req, res) => {
     // variables
@@ -97,15 +116,15 @@ app.post("/servicio/create/:id", bodyParser.json(), (req, res) => {
     let params = [mascota_idmascota, cuenta_idcuenta, duracion, entrega, responsable_idresponsable];
 
     conn.query(sql, params, (err, result) => {
-        if(err) {
-            res.json({err:'Error en los datos del servicio a registrar'});
-            throw err;
-        }else {
-            conn.query("select * from servicio where idservicio = ?", [result.insertId], (e, r) =>{
-                if(e) {
-                    res.json({err:'No se pudo obtener el servicio creada'});
-                    throw e;
-                }else {
+        if (err) {
+            res.json({msg: 'Error en los datos del servicio a registrar'});
+            console.error(err);
+        } else {
+            conn.query("select * from servicio where idservicio = ?", [result.insertId], (e, r) => {
+                if (e) {
+                    res.json({msg: 'No se pudo obtener el servicio creada'});
+                    console.error(err);
+                } else {
                     res.json(r)
                 }
             })
@@ -114,37 +133,35 @@ app.post("/servicio/create/:id", bodyParser.json(), (req, res) => {
 })
 
 
-
 /* Pregunta d) */
-// get--> obtener una cuenta expecifico
-app.get('/cuenta/get/:id?',function(req,res){
-    let cuentaid=req.params.id;
-    if(cuentaid===undefined){
+// get--> obtener todas las cuentas o una en específico
+app.get('/cuenta/get/:id?', function (req, res) {
+    let cuentaid = req.params.id;
+    if (cuentaid === undefined) {
         let sql = 'SELECT * FROM cuenta';
-        conn.query(sql,params,function(err,results){
+        conn.query(sql, params, function (err, results) {
             if (err) {
-                console.log('No se pudo obtener las cuentas');
-                throw err;
+                res.json({msg: 'No se pudo obtener las cuentas'});
+                console.error(err);
             } else {
-                res.json(results);
+                if (results.length !== 0) res.json(results);
+                else res.json({msg: 'No se encontraron resultados'})
             }
         });
-    }else{
-        let sql1 = 'SELECT * FROM cuenta WHERE idcuenta=?';
+    } else {
+        let sql1 = 'SELECT * FROM cuenta WHERE idcuenta = ?';
         let params = [cuentaid];
-        conn.query(sql1,params,function(err,results){
+        conn.query(sql1, params, function (err, results) {
             if (err) {
-                console.log('No se pudo obtener la cuenta');
-                throw err;
+                res.json({msg: 'No se pudo obtener la cuenta'});
+                console.error(err);
             } else {
-                res.json(results);
+                if (results.length !== 0) res.json(results);
+                else res.json({msg: 'No se encontraron resultados'})
             }
         });
     }
-
 });
-
-
 
 /* Server */
 app.listen(3000, () => {
