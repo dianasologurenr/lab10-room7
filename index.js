@@ -53,9 +53,9 @@ app.post('/mascota/create', bodyParser.json(), (req, res) => {
 
 /* Pregunta d) */
 // get--> obtener una cuenta expecifico
-app.get('/cuenta/get/:id',function(req,res){
+app.get('/cuenta/get/:id?',function(req,res){
     let cuentaid=req.params.id;
-    if(cuentaid=''){
+    if(cuentaid===undefined){
         let sql = 'SELECT * FROM cuenta';
         conn.query(sql,params,function(err,results){
             if (err) {
