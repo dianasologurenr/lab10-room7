@@ -48,6 +48,26 @@ app.post('/mascota/create', bodyParser.json(), (req, res) => {
     })
 })
 
+
+
+
+/* Pregunta d) */
+// get--> obtener una cuenta expecifico
+app.get('/cuenta/get/:id',function(req,res){
+    let cuentaid=req.params.id;
+    let sql = 'SELECT * FROM cuenta WHERE idcuenta=?';
+    let params = [cuentaid];
+    conn.query(sql,params,function(err,results){
+        if (err) {
+            console.log('No se pudo obtener la cuenta');
+            throw err;
+        } else {
+            res.json(results);
+        }
+    });
+});
+
+
 /* Server */
 app.listen(3000, () => {
     console.log("Servidor escuchando en puerto: 3000")
