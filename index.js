@@ -81,6 +81,38 @@ app.post('/mascota/create', bodyParser.json(), (req, res) => {
 })
 
 
+/* Pregunta c) */
+// Content-Type: application/json
+// Response -> servicio creado
+
+app.post("/servicio/create/:id", bodyParser.json(), (req, res) => {
+    // variables
+    let mascota_idmascota = req.params.id;
+    let cuenta_idcuenta = req.body.cuenta_idcuenta;
+    let duracion = req.body.duracion;
+    let entrega = req.body.entrega;
+    let responsable_idresponsable = req.body.responsable_idresponsable;
+
+    let sql = "insert into servicio (mascota_idmascota, cuenta_idcuenta, duracion, entrega, responsable_idresponsable) values (?,?,?,?,?)";
+    let params = [mascota_idmascota, cuenta_idcuenta, duracion, entrega, responsable_idresponsable];
+
+    conn.query(sql, params, (err, result) => {
+        if(err) {
+            res.json({err:'Error en los datos del servicio a registrar'});
+            throw err;
+        }else {
+            conn.query("select * from servicio where idservicio = ?", [result.insertId], (e, r) =>{
+                if(e) {
+                    res.json({err:'No se pudo obtener el servicio creada'});
+                    throw e;
+                }else {
+                    res.json(r)
+                }
+            })
+        }
+    })
+})
+
 
 
 /* Pregunta d) */
@@ -113,7 +145,20 @@ app.get('/cuenta/get/:id?',function(req,res){
 });
 
 
+
 /* Server */
 app.listen(3000, () => {
     console.log("Servidor escuchando en puerto: 3000")
 })
+
+
+
+
+
+
+
+
+
+
+
+
